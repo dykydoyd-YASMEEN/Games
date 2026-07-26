@@ -23,7 +23,7 @@
 
         .container {
             width: 100%;
-            max-width: 1200px;
+            max-width: 1400px;
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -114,8 +114,8 @@
 
         .game-section {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
             margin-bottom: 30px;
         }
 
@@ -132,6 +132,14 @@
             font-size: 1.5em;
         }
 
+        .section.guess-section {
+            border-left-color: #9c27b0;
+        }
+
+        .section.guess-section h2 {
+            color: #9c27b0;
+        }
+
         .input-group {
             margin-bottom: 15px;
         }
@@ -141,6 +149,7 @@
             margin-bottom: 8px;
             color: #333;
             font-weight: bold;
+            font-size: 0.95em;
         }
 
         input[type="text"],
@@ -163,19 +172,32 @@
 
         textarea {
             resize: vertical;
-            min-height: 100px;
             direction: rtl;
             text-align: right;
+        }
+
+        .encrypt-textarea {
+            min-height: 100px;
+        }
+
+        .guess-textarea {
+            min-height: 120px;
+        }
+
+        .decrypt-textarea {
+            min-height: 150px;
         }
 
         .button-group {
             display: flex;
             gap: 10px;
             margin-top: 15px;
+            flex-wrap: wrap;
         }
 
         button {
             flex: 1;
+            min-width: 100px;
             padding: 12px 20px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -231,9 +253,23 @@
             min-height: 80px;
             word-break: break-all;
             color: #333;
+            direction: rtl;
+            text-align: right;
+            font-family: 'Courier New', monospace;
+            overflow-y: auto;
+            max-height: 200px;
+        }
+
+        .output-box.encrypted {
             direction: ltr;
             text-align: left;
-            font-family: 'Courier New', monospace;
+        }
+
+        .word-count {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 8px;
+            text-align: center;
         }
 
         .suggestions-box {
@@ -243,6 +279,8 @@
             border: 2px solid #2196f3;
             margin-top: 15px;
             display: none;
+            max-height: 200px;
+            overflow-y: auto;
         }
 
         .suggestions-box h4 {
@@ -258,6 +296,7 @@
             cursor: pointer;
             border-left: 4px solid #2196f3;
             transition: all 0.2s;
+            word-break: break-word;
         }
 
         .suggestion-item:hover {
@@ -353,6 +392,24 @@
             line-height: 1.6;
         }
 
+        .score-box {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+            margin-top: 15px;
+            color: #333;
+            text-align: center;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        @media (max-width: 1024px) {
+            .game-section {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
         @media (max-width: 768px) {
             .game-section {
                 grid-template-columns: 1fr;
@@ -378,8 +435,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>🔐 لعبة التشفير العربية</h1>
-        <p class="subtitle">شفّر وفكّ الرسائل باستخدام نظام التشفير الفريد + ذكاء اصطناعي</p>
+        <h1>🔐 لعبة التشفير العربية المتقدمة</h1>
+        <p class="subtitle">شفّر وفكّ ولعب مع نظام التشفير الفريد + ذكاء اصطناعي</p>
 
         <!-- قسم إعداد Gemini API -->
         <div class="api-setup">
@@ -398,25 +455,45 @@
                 <h2>🔒 تشفير الرسالة</h2>
                 <div class="input-group">
                     <label for="encryptText">أدخل النص العربي:</label>
-                    <textarea id="encryptText" placeholder="اكتب رسالتك هنا..."></textarea>
+                    <textarea id="encryptText" class="encrypt-textarea" placeholder="اكتب رسالتك هنا..."></textarea>
                 </div>
                 <div class="button-group">
                     <button onclick="encryptMessage()">تشفير</button>
                     <button class="clear-btn" onclick="clearEncrypt()">مسح</button>
                 </div>
-                <div class="output-box">
+                <div class="output-box encrypted">
                     <div id="encryptOutput" style="color: #27ae60; font-weight: bold;">النتيجة ستظهر هنا</div>
                 </div>
                 <button class="copy-btn" onclick="copyToClipboard('encryptOutput')" style="width: 100%; margin-top: 10px;">📋 نسخ النتيجة</button>
             </div>
 
-            <!-- قسم فك التشفير -->
-            <div class="section">
-                <h2>🔓 فك التشفير (مع ذكاء اصطناعي)</h2>
+            <!-- قسم التخمين (اللعبة) -->
+            <div class="section guess-section">
+                <h2>🎮 لعبة التخمين</h2>
                 <div class="input-group">
-                    <label for="decryptText">أدخل الأرقام المشفرة:</label>
-                    <input type="text" id="decryptText" placeholder="أدخل الأرقام (مثال: 219290315228100131...)">
+                    <label for="guessText">أدخل نص مشفر للتخمين:</label>
+                    <textarea id="guessText" class="guess-textarea" placeholder="ألصق النص المشفر هنا وحاول تخمين الرسالة الأصلية..."></textarea>
                 </div>
+                <div class="button-group">
+                    <button onclick="checkGuess()">تحقق من إجابتك</button>
+                    <button class="clear-btn" onclick="clearGuess()">مسح</button>
+                </div>
+                <div class="output-box">
+                    <div id="guessOutput" style="color: #27ae60; font-weight: bold;">سيظهر التقييم هنا</div>
+                </div>
+                <div class="score-box" id="scoreBox" style="display: none;">
+                    <span id="scoreText"></span>
+                </div>
+            </div>
+
+            <!-- قسم فك التشفير بـ AI -->
+            <div class="section">
+                <h2>🤖 فك التشفير بـ AI</h2>
+                <div class="input-group">
+                    <label for="decryptText">أدخل الأرقام المشفرة (حتى 500 كلمة):</label>
+                    <textarea id="decryptText" class="decrypt-textarea" placeholder="أدخل النص المشفر هنا (يدعم الفقرات والجمل الطويلة)..."></textarea>
+                </div>
+                <div class="word-count" id="wordCount">0 / 500 كلمة</div>
                 <div class="button-group">
                     <button id="decryptBtn" onclick="decryptMessage()">فك التشفير</button>
                     <button class="clear-btn" onclick="clearDecrypt()">مسح</button>
@@ -426,9 +503,9 @@
                 </div>
                 <button class="copy-btn" onclick="copyToClipboard('decryptOutput')" style="width: 100%; margin-top: 10px;">📋 نسخ النتيجة</button>
 
-                <!-- صندوق الاقتراحات من AI -->
+                <!-- صندوق الاقتراح من AI -->
                 <div id="suggestionsBox" class="suggestions-box">
-                    <h4>💡 الاقتراحات من الذكاء الاصطناعي:</h4>
+                    <h4>✅ الاقتراح من الذكاء الاصطناعي:</h4>
                     <div id="suggestionsList"></div>
                 </div>
             </div>
@@ -453,8 +530,8 @@
                 • الهمزات المختلفة لها أرقام مختلفة<br>
                 • تتم إزالة المسافات تلقائياً عند التشفير<br>
                 • يدعم الأحرف العربية والأرقام الإنجليزية<br>
-                • مثال: "مرحبا" → "4102023331" (مع فواصل: 4-10-20-23-33-31)<br>
-                • الذكاء الاصطناعي يساعد في اختيار الكلمة الصحيحة عند وجود تشابه
+                • الذكاء الاصطناعي يعطيك الاحتمال المنطقي الوحيد<br>
+                • يمكنك تخمين النص المشفر ومعرفة إذا كان صحيح!
             </div>
         </div>
     </div>
@@ -463,50 +540,21 @@
     <script>
         let genAI = null;
         let apiKeySet = false;
+        let currentEncryption = '';
 
-        // جدول التشفير المحدث - تمييز بين أشكال الهمزة
+        // جدول التشفير المحدث
         const encryptionKey = {
-            'ا': 1,
-            'آ': 31,  // ألف مع مد
-            'أ': 32,  // همزة على ألف
-            'إ': 33,  // همزة تحت ألف
-            'ل': 2,
-            'ت': 3,
-            'م': 4,
-            'ن': 5,
-            'ب': 6,
-            'د': 7,
-            'ي': 8,
-            'ذ': 9,
-            'ر': 10,
-            'ز': 11,
-            'س': 12,
-            'ص': 13,
-            'ض': 14,
-            'ش': 15,
-            'ط': 16,
-            'ظ': 17,
-            'ع': 18,
-            'غ': 19,
-            'ك': 20,
-            'ق': 21,
-            'ف': 22,
-            'ح': 23,
-            'ج': 24,
-            'خ': 25,
-            'ث': 26,
-            'و': 27,
-            'ه': 28,
-            'ة': 29,
-            'ء': 30
+            'ا': 1, 'آ': 31, 'أ': 32, 'إ': 33,
+            'ل': 2, 'ت': 3, 'م': 4, 'ن': 5, 'ب': 6, 'د': 7, 'ي': 8, 'ذ': 9,
+            'ر': 10, 'ز': 11, 'س': 12, 'ص': 13, 'ض': 14, 'ش': 15, 'ط': 16,
+            'ظ': 17, 'ع': 18, 'غ': 19, 'ك': 20, 'ق': 21, 'ف': 22, 'ح': 23,
+            'ج': 24, 'خ': 25, 'ث': 26, 'و': 27, 'ه': 28, 'ة': 29, 'ء': 30
         };
 
-        // جدول عكسي للفك
         const decryptionKey = Object.fromEntries(
             Object.entries(encryptionKey).map(([k, v]) => [v, k])
         );
 
-        // الألوان للعرض المرئي
         const colors = [
             '#667eea', '#764ba2', '#f39c12', '#e74c3c', '#27ae60',
             '#2980b9', '#8e44ad', '#c0392b', '#16a085', '#2c3e50',
@@ -535,7 +583,7 @@
             }
         }
 
-        // تحميل مفتاح API المحفوظ عند تحميل الصفحة
+        // تحميل مفتاح API المحفوظ
         function loadSavedApiKey() {
             const savedKey = localStorage.getItem('geminiApiKey');
             if (savedKey) {
@@ -564,7 +612,19 @@
             });
         }
 
-        // دالة التشفير المحدثة
+        // عد الكلمات
+        document.getElementById('decryptText').addEventListener('input', function() {
+            const text = this.value.trim();
+            const wordCount = text ? text.split(/\s+/).length : 0;
+            const limit = 500;
+            document.getElementById('wordCount').textContent = `${wordCount} / ${limit} كلمة`;
+            
+            if (wordCount > limit) {
+                this.value = this.value.substring(0, this.value.length - 1);
+            }
+        });
+
+        // دالة التشفير
         function encryptMessage() {
             const text = document.getElementById('encryptText').value;
             if (!text) {
@@ -591,156 +651,146 @@
             }
 
             encrypted = wordArray.join('0');
+            currentEncryption = encrypted;
             document.getElementById('encryptOutput').textContent = encrypted;
             updateCanvas(text, encrypted);
         }
 
-        // دالة فك التشفير مع AI
+        // دالة التحقق من التخمين
+        function checkGuess() {
+            const guessText = document.getElementById('guessText').value.trim();
+            if (!guessText) {
+                alert('الرجاء إدخال نص مشفر!');
+                return;
+            }
+
+            let decrypted = '';
+            const words = guessText.split('0');
+
+            words.forEach((word, wordIndex) => {
+                let currentNum = '';
+                for (let char of word) {
+                    currentNum += char;
+                    if (decryptionKey[parseInt(currentNum)] !== undefined) {
+                        decrypted += decryptionKey[parseInt(currentNum)];
+                        currentNum = '';
+                    }
+                }
+                if (wordIndex < words.length - 1) {
+                    decrypted += ' ';
+                }
+            });
+
+            document.getElementById('guessOutput').textContent = `الرسالة المفكوكة: ${decrypted}`;
+            document.getElementById('scoreBox').style.display = 'block';
+            document.getElementById('scoreText').textContent = '✅ تم فك التشفير بنجاح! الآن تحقق من المعنى!';
+        }
+
+        // دالة فك التشفير بـ AI
         async function decryptMessage() {
-            const encrypted = document.getElementById('decryptText').value;
+            const encrypted = document.getElementById('decryptText').value.trim();
             if (!encrypted) {
                 alert('الرجاء إدخال أرقام للفك!');
                 return;
             }
 
-            // الحصول على جميع الاحتمالات
-            const possibilities = getAllDecryptionPossibilities(encrypted);
-
-            if (possibilities.length === 0) {
-                alert('لم يتم العثور على احتمالات صحيحة!');
+            if (!apiKeySet) {
+                alert('الرجاء توصيل مفتاح Gemini API أولاً!');
                 return;
             }
 
-            if (possibilities.length === 1) {
-                document.getElementById('decryptOutput').textContent = possibilities[0];
-                document.getElementById('suggestionsBox').style.display = 'none';
-                return;
-            }
-
-            // إذا كان هناك أكثر من احتمال واحد، استخدم AI للاختيار
-            if (apiKeySet && possibilities.length > 1) {
-                await usAIToSelectBestDecryption(possibilities);
-            } else {
-                // إذا لم يتم تعيين مفتاح API، عرض جميع الاحتمالات
-                showAllPossibilities(possibilities);
-            }
-        }
-
-        // الحصول على جميع الاحتمالات الممكنة
-        function getAllDecryptionPossibilities(encrypted) {
-            const words = encrypted.split('0');
-            const wordPossibilities = words.map(word => getWordPossibilities(word));
-            return cartesianProduct(wordPossibilities).map(combo => combo.join(' '));
-        }
-
-        // الحصول على جميع احتمالات كلمة واحدة
-        function getWordPossibilities(word) {
-            const possibilities = [];
-
-            function findAllCombinations(remaining, current) {
-                if (!remaining) {
-                    if (current) {
-                        possibilities.push(current);
-                    }
-                    return;
-                }
-
-                for (let i = 1; i <= 2; i++) {
-                    const num = parseInt(remaining.substring(0, i));
-                    if (decryptionKey[num] !== undefined) {
-                        findAllCombinations(remaining.substring(i), current + decryptionKey[num]);
-                    }
-                }
-            }
-
-            findAllCombinations(word, '');
-            return possibilities.length > 0 ? possibilities : [];
-        }
-
-        // حساب الضرب الديكارتي
-        function cartesianProduct(arrays) {
-            if (arrays.length === 0) return [[]];
-            if (arrays.length === 1) return arrays[0].map(x => [x]);
-
-            const [first, ...rest] = arrays;
-            const restProduct = cartesianProduct(rest);
-            return first.flatMap(x => restProduct.map(combo => [x, ...combo]));
-        }
-
-        // استخدام AI لاختيار أفضل فك تشفير
-        async function usAIToSelectBestDecryption(possibilities) {
             const decryptBtn = document.getElementById('decryptBtn');
             decryptBtn.disabled = true;
+            decryptBtn.textContent = 'جاري المعالجة...';
 
             try {
+                // فك التشفير الأولي
+                let basicDecrypted = '';
+                const words = encrypted.split('0');
+
+                words.forEach((word, wordIndex) => {
+                    let currentNum = '';
+                    let possibilities = [];
+                    
+                    for (let i = 0; i < word.length; i++) {
+                        currentNum += word[i];
+                        const num = parseInt(currentNum);
+                        
+                        if (decryptionKey[num] !== undefined) {
+                            possibilities.push({
+                                char: decryptionKey[num],
+                                length: currentNum.length
+                            });
+                        }
+                    }
+
+                    // اختر أطول احتمالية متاحة
+                    if (possibilities.length > 0) {
+                        let maxLength = 0;
+                        let bestChar = '';
+                        
+                        for (let poss of possibilities) {
+                            if (poss.length > maxLength) {
+                                maxLength = poss.length;
+                                bestChar = poss.char;
+                            }
+                        }
+                        
+                        basicDecrypted += bestChar;
+                    }
+                });
+
+                // استخدم AI لتصحيح وفهم النص
                 const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
-                const prompt = `أنا أملك هذه الاحتمالات لفك تشفير نص عربي:
-${possibilities.map((p, i) => `${i + 1}. ${p}`).join('\n')}
+                const prompt = `النص المفكوك الأولي: "${basicDecrypted}"
 
-اختر الاحتمالية التي تبدو كلمة أو جملة عربية صحيحة وحقيقية وذات معنى. أرجع الجواب برقم الاحتمالية فقط (مثلاً: 1) ثم في السطر التالي اكتب الاحتمالية المختارة.`;
+هذا النص تم فكه من تشفير عربي. قد يحتاج إلى تصحيح لأن هناك احتمالات متعددة.
+
+من فضلك:
+1. أعطني الاحتمالية الوحيدة الصحيحة والمنطقية والتي تُشكل كلمات أو جملة عربية حقيقية
+2. لا تعطني عدة اختيارات، بل اختر الاحتمال الأصح فقط
+3. أرجع النتيجة بشكل مباشر وواضح
+
+النتيجة النهائية:`;
 
                 const result = await model.generateContent(prompt);
                 const response = result.response.text();
 
                 // استخراج الاحتمالية المختارة
-                const lines = response.trim().split('\n');
-                const selectedLine = lines.find(line => 
-                    possibilities.some(p => line.includes(p))
-                );
+                const finalResult = response.trim();
+                document.getElementById('decryptOutput').textContent = finalResult;
 
-                if (selectedLine) {
-                    const selected = possibilities.find(p => selectedLine.includes(p));
-                    document.getElementById('decryptOutput').textContent = selected;
+                // عرض صندوق الاقتراح
+                const suggestionsBox = document.getElementById('suggestionsBox');
+                const suggestionsList = document.getElementById('suggestionsList');
+                suggestionsList.innerHTML = '';
 
-                    // عرض جميع الاحتمالات للمرجعية
-                    showAllPossibilities(possibilities, selected);
-                } else {
-                    showAllPossibilities(possibilities);
-                }
+                const item = document.createElement('div');
+                item.className = 'suggestion-item';
+                item.style.background = '#c8e6c9';
+                item.style.borderLeftColor = '#4caf50';
+                item.textContent = `✅ ${finalResult}`;
+                item.onclick = () => {
+                    document.getElementById('decryptOutput').textContent = finalResult;
+                };
+                suggestionsList.appendChild(item);
+
+                suggestionsBox.style.display = 'block';
+
             } catch (error) {
                 console.error('خطأ في API:', error);
-                alert('خطأ في الاتصال بـ AI. عرض جميع الاحتمالات...');
-                showAllPossibilities(possibilities);
+                alert('خطأ في الاتصال بـ AI: ' + error.message);
             } finally {
                 decryptBtn.disabled = false;
+                decryptBtn.textContent = 'فك التشفير';
             }
         }
 
-        // عرض جميع الاحتمالات
-        function showAllPossibilities(possibilities, selected = null) {
-            const suggestionsBox = document.getElementById('suggestionsBox');
-            const suggestionsList = document.getElementById('suggestionsList');
-            suggestionsList.innerHTML = '';
-
-            possibilities.forEach((possibility, index) => {
-                const item = document.createElement('div');
-                item.className = 'suggestion-item';
-                if (selected === possibility) {
-                    item.style.background = '#c8e6c9';
-                    item.style.borderLeftColor = '#4caf50';
-                }
-                item.textContent = `${index + 1}. ${possibility}`;
-                item.onclick = () => {
-                    document.getElementById('decryptOutput').textContent = possibility;
-                    // تحديث الاختيار
-                    document.querySelectorAll('.suggestion-item').forEach(el => {
-                        el.style.background = 'white';
-                        el.style.borderLeftColor = '#2196f3';
-                    });
-                    item.style.background = '#c8e6c9';
-                    item.style.borderLeftColor = '#4caf50';
-                };
-                suggestionsList.appendChild(item);
-            });
-
-            suggestionsBox.style.display = 'block';
-        }
-
-        // دالة نسخ للنتيجة
+        // دالة نسخ النتيجة
         function copyToClipboard(elementId) {
             const text = document.getElementById(elementId).textContent;
-            if (text === 'النتيجة ستظهر هنا') {
+            if (text.includes('ستظهر') || text.includes('سيظهر')) {
                 alert('لا توجد نتيجة لنسخها!');
                 return;
             }
@@ -749,18 +799,24 @@ ${possibilities.map((p, i) => `${i + 1}. ${p}`).join('\n')}
             });
         }
 
-        // دالة مسح حقول التشفير
+        // دوال المسح
         function clearEncrypt() {
             document.getElementById('encryptText').value = '';
             document.getElementById('encryptOutput').textContent = 'النتيجة ستظهر هنا';
             clearCanvas();
         }
 
-        // دالة مسح حقول فك التشفير
+        function clearGuess() {
+            document.getElementById('guessText').value = '';
+            document.getElementById('guessOutput').textContent = 'سيظهر التقييم هنا';
+            document.getElementById('scoreBox').style.display = 'none';
+        }
+
         function clearDecrypt() {
             document.getElementById('decryptText').value = '';
             document.getElementById('decryptOutput').textContent = 'النتيجة ستظهر هنا';
             document.getElementById('suggestionsBox').style.display = 'none';
+            document.getElementById('wordCount').textContent = '0 / 500 كلمة';
         }
 
         // دالة رسم Canvas
@@ -769,14 +825,12 @@ ${possibilities.map((p, i) => `${i + 1}. ${p}`).join('\n')}
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // الخلفية المتدرجة
             const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
             gradient.addColorStop(0, '#f8f9ff');
             gradient.addColorStop(1, '#e3f2fd');
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // رسم الحروف الأصلية
             ctx.font = 'bold 24px Arial';
             ctx.textAlign = 'center';
             ctx.fillStyle = '#667eea';
@@ -789,13 +843,11 @@ ${possibilities.map((p, i) => `${i + 1}. ${p}`).join('\n')}
                     x = 30;
                     y += 60;
                 } else if (encryptionKey[char] !== undefined) {
-                    // رسم دائرة حول الحرف
                     ctx.fillStyle = colors[Object.keys(encryptionKey).indexOf(char) % colors.length];
                     ctx.beginPath();
                     ctx.arc(x + 15, y + 15, 20, 0, Math.PI * 2);
                     ctx.fill();
 
-                    // رسم الحرف
                     ctx.fillStyle = 'white';
                     ctx.font = 'bold 20px Arial';
                     ctx.fillText(char, x + 15, y + 20);
@@ -804,7 +856,6 @@ ${possibilities.map((p, i) => `${i + 1}. ${p}`).join('\n')}
                 }
             }
 
-            // رسم الأرقام المشفرة
             ctx.fillStyle = '#764ba2';
             ctx.font = 'bold 24px Arial';
             ctx.textAlign = 'center';
@@ -812,49 +863,36 @@ ${possibilities.map((p, i) => `${i + 1}. ${p}`).join('\n')}
 
             x = canvas.width / 2;
             y = 100;
-            let charIndex = 0;
-            const words = encryptedText.split('0');
+            const encWords = encryptedText.split('0');
 
-            words.forEach((word, wordIndex) => {
-                let currentNum = '';
+            encWords.forEach((word, wordIndex) => {
                 for (let i = 0; i < word.length; i++) {
-                    currentNum += word[i];
-                    const num = parseInt(currentNum);
+                    const digit = word[i];
                     
-                    if (decryptionKey[num] !== undefined) {
-                        // رسم مربع حول الرقم
-                        ctx.fillStyle = colors[charIndex % colors.length];
-                        ctx.fillRect(x - 18, y - 18, 36, 36);
-                        ctx.strokeStyle = '#764ba2';
-                        ctx.lineWidth = 2;
-                        ctx.strokeRect(x - 18, y - 18, 36, 36);
+                    ctx.fillStyle = colors[i % colors.length];
+                    ctx.fillRect(x - 18, y - 18, 36, 36);
+                    ctx.strokeStyle = '#764ba2';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(x - 18, y - 18, 36, 36);
 
-                        // رسم الرقم
-                        ctx.fillStyle = 'white';
-                        ctx.font = 'bold 16px Arial';
-                        ctx.textAlign = 'center';
-                        ctx.fillText(currentNum, x, y + 6);
+                    ctx.fillStyle = 'white';
+                    ctx.font = 'bold 16px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(digit, x, y + 6);
 
-                        x += 45;
-                        charIndex++;
-                        currentNum = '';
-
-                        if (x > canvas.width - 60) {
-                            x = 30;
-                            y += 60;
-                        }
-                    }
-                }
-
-                if (wordIndex < words.length - 1) {
-                    ctx.fillStyle = '#e74c3c';
-                    ctx.font = 'bold 20px Arial';
-                    ctx.fillText('0', x, y + 6);
                     x += 45;
+
                     if (x > canvas.width - 60) {
                         x = 30;
                         y += 60;
                     }
+                }
+
+                if (wordIndex < encWords.length - 1) {
+                    ctx.fillStyle = '#e74c3c';
+                    ctx.font = 'bold 20px Arial';
+                    ctx.fillText('0', x, y + 6);
+                    x += 45;
                 }
             });
         }
@@ -865,7 +903,6 @@ ${possibilities.map((p, i) => `${i + 1}. ${p}`).join('\n')}
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // رسم الرسالة الافتراضية
             ctx.font = 'bold 24px Arial';
             ctx.fillStyle = '#999';
             ctx.textAlign = 'center';
@@ -887,6 +924,8 @@ ${possibilities.map((p, i) => `${i + 1}. ${p}`).join('\n')}
                         encryptMessage();
                     } else if (document.activeElement === document.getElementById('decryptText')) {
                         decryptMessage();
+                    } else if (document.activeElement === document.getElementById('guessText')) {
+                        checkGuess();
                     }
                 }
             }
